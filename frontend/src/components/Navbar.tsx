@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { WalletConnect } from "./WalletConnect";
 
 export function Navbar() {
@@ -11,7 +10,7 @@ export function Navbar() {
   return (
     <div className="nav">
       <div className="row" style={{ alignItems: "center", gap: 10 }}>
-        <Image src="/logo.svg" alt="OperantX" width={28} height={28} />
+        <img src="/logo.svg" alt="OperantX" width={28} height={28} style={{ display: "block" }} />
         <strong>OperantX</strong>
       </div>
       <div className="row" style={{ alignItems: "center" }}>
