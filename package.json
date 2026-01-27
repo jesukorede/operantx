@@ -1,0 +1,19 @@
+{
+  "name": "operantx",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "contracts"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "lint": "npm --workspace backend run lint && npm --workspace frontend run lint",
+    "build": "npm --workspace backend run build && npm --workspace frontend run build"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}

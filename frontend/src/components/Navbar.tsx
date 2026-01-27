@@ -1,0 +1,34 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { WalletConnect } from "./WalletConnect";
+
+export function Navbar() {
+  const path = usePathname();
+
+  return (
+    <div className="nav">
+      <div className="row" style={{ alignItems: "center", gap: 10 }}>
+        <Image src="/logo.svg" alt="OperantX" width={28} height={28} />
+        <strong>OperantX</strong>
+      </div>
+      <div className="row" style={{ alignItems: "center" }}>
+        <Link className={path === "/" ? "active" : ""} href="/">
+          Home
+        </Link>
+        <Link className={path?.startsWith("/dashboard") ? "active" : ""} href="/dashboard">
+          Dashboard
+        </Link>
+        <Link className={path?.startsWith("/jobs") ? "active" : ""} href="/jobs">
+          Jobs
+        </Link>
+        <Link className={path?.startsWith("/profile") ? "active" : ""} href="/profile">
+          Profile
+        </Link>
+        <WalletConnect />
+      </div>
+    </div>
+  );
+}
