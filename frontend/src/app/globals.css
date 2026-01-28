@@ -28,6 +28,9 @@ body { background: var(--bg); color: var(--text); }
 .nav a { margin-right: 14px; color: var(--muted); font-weight: 600; }
 .nav a.active { color: var(--text); }
 
+.features-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+.feature-card { padding: 16px; height: 100%; display: flex; flex-direction: column; }
+
 .nav a:hover { color: var(--text); }
 
 .btn:hover { filter: brightness(0.97); }
@@ -45,4 +48,11 @@ body { background: var(--bg); color: var(--text); }
   .nav { flex-wrap: wrap; gap: 10px; }
   .nav a { margin-right: 0; }
   .nav-links { width: 100%; justify-content: space-between; }
+  .features-grid { grid-template-columns: 1fr; }
+  .hero-actions { width: 100%; }
+  .hero-actions .btn { width: 100%; justify-content: center; text-align: center; }
+}
+
+@media (max-width: 920px) {
+  .features-grid { grid-template-columns: 1fr; }
 }

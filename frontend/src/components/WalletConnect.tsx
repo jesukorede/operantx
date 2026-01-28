@@ -9,6 +9,15 @@ export function WalletConnect() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isMobile = typeof window !== "undefined" ? /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) : false;
+  const wcEnabled = Boolean(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID);
+
+  const metamaskDeepLink = (() => {
+    if (typeof window === "undefined") return "";
+    const url = window.location.href;
+    return `https://metamask.app.link/dapp/${url.replace(/^https?:\/\//, "")}`;
+  })();
+
   useEffect(() => {
     const a = localStorage.getItem("operantx_address");
     if (a) setAddress(a);
@@ -28,7 +37,13 @@ export function WalletConnect() {
       setAddress(addr);
     } catch (e: any) {
       const msg = String(e?.message ?? e);
-      setError(msg === "backend_unreachable" ? "Backend is not reachable (is it running on :4000?)" : msg);
+      if (msg === "backend_unreachable") {
+        setError("Backend is not reachable.");
+      } else if (msg === "no_wallet") {
+        setError(isMobile ? "No wallet detected in this browser." : "No wallet detected (install MetaMask/Rabby). ");
+      } else {
+        setError(msg);
+      }
     } finally {
       setBusy(false);
     }
@@ -46,6 +61,16 @@ export function WalletConnect() {
         <button className="btn" onClick={onConnect} disabled={busy}>
           {busy ? "Connecting..." : "Connect Wallet"}
         </button>
+        {error === "No wallet detected in this browser." && isMobile ? (
+          <a className="btn secondary" href={metamaskDeepLink} target="_blank" rel="noreferrer">
+            Open in MetaMask
+          </a>
+        ) : null}
+        {error === "No wallet detected in this browser." && !wcEnabled ? (
+          <div style={{ color: "var(--muted)", fontSize: 12, maxWidth: 220, textAlign: "right" }}>
+            Tip: install MetaMask mobile or open this site inside a wallet browser.
+          </div>
+        ) : null}
         {error ? <div style={{ color: "tomato", fontSize: 12 }}>{error}</div> : null}
       </div>
     );

@@ -22,7 +22,7 @@ export default function Page() {
             <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.7, maxWidth: 560, margin: 0 }}>
               OperantX helps you publish capabilities, match to real tasks, and track execution status with wallet-based identities on peaq.
             </p>
-            <div className="row" style={{ marginTop: 16 }}>
+            <div className="row hero-actions" style={{ marginTop: 16 }}>
               <a className="btn" href="https://operantxlandingpg.vercel.app/" target="_blank" rel="noreferrer">
                 Request Pilot Access
               </a>
@@ -38,32 +38,29 @@ export default function Page() {
           <div className="panel" style={{ flex: "0 1 460px" }}>
             <h3 style={{ margin: 0 }}>What you can do today</h3>
             <div style={{ height: 10 }} />
-            <div className="row">
-              <div className="panel" style={{ flex: "1 1 200px", boxShadow: "none" }}>
+            <div className="features-grid">
+              <div className="panel feature-card" style={{ boxShadow: "none" }}>
                 <div className="badge">Profiles</div>
                 <div style={{ marginTop: 10, fontWeight: 700 }}>Skills + capabilities</div>
                 <div style={{ marginTop: 6, color: "var(--muted)", fontSize: 13, lineHeight: 1.6 }}>
                   Humans list skills. Machine owners list service capabilities.
                 </div>
               </div>
-              <div className="panel" style={{ flex: "1 1 200px", boxShadow: "none" }}>
+              <div className="panel feature-card" style={{ boxShadow: "none" }}>
                 <div className="badge">Jobs</div>
                 <div style={{ marginTop: 10, fontWeight: 700 }}>Simple lifecycle</div>
                 <div style={{ marginTop: 6, color: "var(--muted)", fontSize: 13, lineHeight: 1.6 }}>
                   Post tasks, accept them, and mark complete for pilots.
                 </div>
               </div>
-            </div>
-            <div style={{ height: 12 }} />
-            <div className="row">
-              <div className="panel" style={{ flex: "1 1 200px", boxShadow: "none" }}>
+              <div className="panel feature-card" style={{ boxShadow: "none" }}>
                 <div className="badge">Identity</div>
                 <div style={{ marginTop: 10, fontWeight: 700 }}>Wallet-based access</div>
                 <div style={{ marginTop: 6, color: "var(--muted)", fontSize: 13, lineHeight: 1.6 }}>
                   Connect once and use the same account across roles.
                 </div>
               </div>
-              <div className="panel" style={{ flex: "1 1 200px", boxShadow: "none" }}>
+              <div className="panel feature-card" style={{ boxShadow: "none" }}>
                 <div className="badge">On-chain hooks</div>
                 <div style={{ marginTop: 10, fontWeight: 700 }}>Registry events</div>
                 <div style={{ marginTop: 6, color: "var(--muted)", fontSize: 13, lineHeight: 1.6 }}>
