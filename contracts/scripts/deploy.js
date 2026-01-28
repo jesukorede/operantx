@@ -1,0 +1,17 @@
+async function main() {
+  const { ethers } = require("hardhat");
+
+  const Factory = await ethers.getContractFactory("OperantXRegistry");
+  const registry = await Factory.deploy();
+  await registry.waitForDeployment();
+
+  const addr = await registry.getAddress();
+  // eslint-disable-next-line no-console
+  console.log("OperantXRegistry deployed to:", addr);
+}
+
+main().catch((e) => {
+  // eslint-disable-next-line no-console
+  console.error(e);
+  process.exit(1);
+});

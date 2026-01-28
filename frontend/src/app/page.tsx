@@ -8,7 +8,14 @@ export default function Page() {
         <div className="row" style={{ alignItems: "stretch", justifyContent: "space-between" }}>
           <div style={{ flex: "1 1 520px", paddingTop: 18 }}>
             <div className="badge">peaq testnet • coordination MVP</div>
-            <h1 style={{ margin: "14px 0 12px", fontSize: 48, lineHeight: 1.05, letterSpacing: "-0.02em" }}>
+            <h1
+              style={{
+                margin: "14px 0 12px",
+                fontSize: "clamp(34px, 6vw, 48px)",
+                lineHeight: 1.05,
+                letterSpacing: "-0.02em",
+              }}
+            >
               A coordination layer for
               <span style={{ display: "block" }}>humans + machines.</span>
             </h1>
@@ -16,7 +23,9 @@ export default function Page() {
               OperantX helps you publish capabilities, match to real tasks, and track execution status with wallet-based identities on peaq.
             </p>
             <div className="row" style={{ marginTop: 16 }}>
-              <button className="btn">Request Pilot Access</button>
+              <a className="btn" href="https://operantxlandingpg.vercel.app/" target="_blank" rel="noreferrer">
+                Request Pilot Access
+              </a>
               <a className="btn secondary" href="/jobs">
                 Browse Jobs
               </a>

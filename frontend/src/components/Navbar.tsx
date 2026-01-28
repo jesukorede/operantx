@@ -13,7 +13,7 @@ export function Navbar() {
         <img src="/logo.svg" alt="OperantX" width={28} height={28} style={{ display: "block" }} />
         <strong>OperantX</strong>
       </div>
-      <div className="row" style={{ alignItems: "center" }}>
+      <div className="row nav-links" style={{ alignItems: "center" }}>
         <Link className={path === "/" ? "active" : ""} href="/">
           Home
         </Link>
