@@ -6,6 +6,7 @@ import { env } from "./config/env.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { userRoutes } from "./routes/user.routes.js";
 import { jobRoutes } from "./routes/job.routes.js";
+import { adminRoutes } from "./routes/admin.routes.js";
 
 export function createApp(db: Db) {
   const app = express();
@@ -23,6 +24,7 @@ export function createApp(db: Db) {
   app.use("/auth", authRoutes(db));
   app.use(userRoutes(db));
   app.use("/jobs", jobRoutes(db));
+  app.use("/admin", adminRoutes(db));
 
   return app;
 }

@@ -3,10 +3,13 @@ import { newId } from "../utils/ids.js";
 
 export type UserRole = "human" | "machine_owner";
 
+export type PilotStatus = "none" | "applied" | "approved";
+
 export type UserRecord = {
   id: string;
   walletAddress: string;
   role: UserRole;
+  pilotStatus: PilotStatus;
   skills: string[];
   machines: Array<{ name: string; type: string; capabilities: string[] }>;
   createdAt: string;
@@ -23,10 +26,11 @@ export async function getOrCreateUser(db: Db, walletAddress: string): Promise<Us
   const now = new Date().toISOString();
   const id = newId("usr");
   await db.run(
-    "INSERT INTO users (id, walletAddress, role, skillsJson, machinesJson, createdAt) VALUES (?, ?, ?, ?, ?, ?)",
+    "INSERT INTO users (id, walletAddress, role, pilotStatus, skillsJson, machinesJson, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
     id,
     walletAddress,
     "human",
+    "none",
     "[]",
     "[]",
     now
@@ -70,6 +74,7 @@ function hydrate(row: any): UserRecord {
     id: row.id,
     walletAddress: row.walletAddress,
     role: row.role,
+    pilotStatus: (row.pilotStatus ?? "none") as PilotStatus,
     skills: parseJson<string[]>(row.skillsJson),
     machines: parseJson<Array<{ name: string; type: string; capabilities: string[] }>>(row.machinesJson),
     createdAt: row.createdAt

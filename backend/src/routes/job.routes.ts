@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import type { Db } from "../config/database.js";
 import { requireAuth, type AuthedRequest } from "../middleware/auth.middleware.js";
+import { requirePilotApproved } from "../middleware/pilot.middleware.js";
 import { acceptJob, completeJob, createJob, listJobs } from "../services/job.service.js";
 
 export function jobRoutes(db: Db) {
@@ -13,7 +14,7 @@ export function jobRoutes(db: Db) {
     res.json({ jobs });
   });
 
-  r.post("/", requireAuth, async (req: AuthedRequest, res) => {
+  r.post("/", requireAuth, requirePilotApproved(db), async (req: AuthedRequest, res) => {
     const schema = z.object({
       title: z.string().min(1),
       description: z.string().min(1),

@@ -25,6 +25,7 @@ export async function openDb() {
       id TEXT PRIMARY KEY,
       walletAddress TEXT NOT NULL UNIQUE,
       role TEXT NOT NULL DEFAULT 'human',
+      pilotStatus TEXT NOT NULL DEFAULT 'none',
       skillsJson TEXT NOT NULL DEFAULT '[]',
       machinesJson TEXT NOT NULL DEFAULT '[]',
       createdAt TEXT NOT NULL
@@ -48,6 +49,12 @@ export async function openDb() {
       updatedAt TEXT NOT NULL
     );
   `);
+
+  const cols = await db.all<{ name: string }[]>("PRAGMA table_info(users)");
+  const hasPilotStatus = cols.some((c) => c.name === "pilotStatus");
+  if (!hasPilotStatus) {
+    await db.exec("ALTER TABLE users ADD COLUMN pilotStatus TEXT NOT NULL DEFAULT 'none';");
+  }
 
   return db;
 }

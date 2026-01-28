@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Db } from "../config/database.js";
 import { requireAuth, type AuthedRequest } from "../middleware/auth.middleware.js";
 import { getUser, updateUser } from "../services/user.service.js";
+import { applyForPilot } from "../services/pilot.service.js";
 
 export function userRoutes(db: Db) {
   const r = Router();
@@ -36,6 +37,16 @@ export function userRoutes(db: Db) {
 
     const updated = await updateUser(db, req.user!.walletAddress, parsed.data);
     res.json({ user: updated });
+  });
+
+  r.post("/me/pilot/apply", requireAuth, async (req: AuthedRequest, res) => {
+    const out = await applyForPilot(db, req.user!.walletAddress);
+    if (!out) {
+      res.status(404).json({ error: "not_found" });
+      return;
+    }
+    const me = await getUser(db, req.user!.walletAddress);
+    res.json({ user: me });
   });
 
   return r;
