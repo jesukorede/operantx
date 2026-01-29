@@ -6,12 +6,13 @@ import { env } from "../config/env.js";
 import { getOrCreateUser } from "./user.service.js";
 
 export async function createNonce(db: Db, walletAddress: string): Promise<string> {
+  const normalized = String(walletAddress).toLowerCase();
   const nonce = crypto.randomBytes(16).toString("hex");
   const now = new Date().toISOString();
 
   await db.run(
     "INSERT INTO nonces (walletAddress, nonce, createdAt) VALUES (?, ?, ?) ON CONFLICT(walletAddress) DO UPDATE SET nonce = excluded.nonce, createdAt = excluded.createdAt",
-    walletAddress,
+    normalized,
     nonce,
     now
   );
@@ -20,13 +21,15 @@ export async function createNonce(db: Db, walletAddress: string): Promise<string
 }
 
 export async function consumeNonce(db: Db, walletAddress: string): Promise<string | null> {
-  const row = await db.get<{ nonce: string }>("SELECT nonce FROM nonces WHERE walletAddress = ?", walletAddress);
+  const normalized = String(walletAddress).toLowerCase();
+  const row = await db.get<{ nonce: string }>("SELECT nonce FROM nonces WHERE walletAddress = ?", normalized);
   if (!row) return null;
-  await db.run("DELETE FROM nonces WHERE walletAddress = ?", walletAddress);
+  await db.run("DELETE FROM nonces WHERE walletAddress = ?", normalized);
   return row.nonce;
 }
 
 export async function issueToken(db: Db, walletAddress: string): Promise<string> {
-  await getOrCreateUser(db, walletAddress);
-  return jwt.sign({ walletAddress }, env.jwtSecret, { expiresIn: "7d" });
+  const normalized = String(walletAddress).toLowerCase();
+  await getOrCreateUser(db, normalized);
+  return jwt.sign({ walletAddress: normalized }, env.jwtSecret, { expiresIn: "7d" });
 }

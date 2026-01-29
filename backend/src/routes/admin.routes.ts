@@ -22,8 +22,12 @@ export function adminRoutes(db: Db) {
       return;
     }
 
-    const walletAddress = String(req.params.walletAddress);
-    await db.run("UPDATE users SET pilotStatus = ? WHERE walletAddress = ?", parsed.data.pilotStatus, walletAddress);
+    const walletAddress = String(req.params.walletAddress).toLowerCase();
+    await db.run(
+      "UPDATE users SET pilotStatus = ? WHERE walletAddress = ?",
+      parsed.data.pilotStatus,
+      walletAddress
+    );
     const updated = await db.get<any>(
       "SELECT walletAddress, role, pilotStatus, createdAt FROM users WHERE walletAddress = ?",
       walletAddress

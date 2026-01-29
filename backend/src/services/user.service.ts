@@ -20,7 +20,8 @@ function parseJson<T>(s: string): T {
 }
 
 export async function getOrCreateUser(db: Db, walletAddress: string): Promise<UserRecord> {
-  const row = await db.get<any>("SELECT * FROM users WHERE walletAddress = ?", walletAddress);
+  const normalized = String(walletAddress).toLowerCase();
+  const row = await db.get<any>("SELECT * FROM users WHERE walletAddress = ?", normalized);
   if (row) return hydrate(row);
 
   const now = new Date().toISOString();
@@ -28,7 +29,7 @@ export async function getOrCreateUser(db: Db, walletAddress: string): Promise<Us
   await db.run(
     "INSERT INTO users (id, walletAddress, role, pilotStatus, skillsJson, machinesJson, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
     id,
-    walletAddress,
+    normalized,
     "human",
     "none",
     "[]",
@@ -36,12 +37,13 @@ export async function getOrCreateUser(db: Db, walletAddress: string): Promise<Us
     now
   );
 
-  const created = await db.get<any>("SELECT * FROM users WHERE walletAddress = ?", walletAddress);
+  const created = await db.get<any>("SELECT * FROM users WHERE walletAddress = ?", normalized);
   return hydrate(created);
 }
 
 export async function getUser(db: Db, walletAddress: string): Promise<UserRecord | null> {
-  const row = await db.get<any>("SELECT * FROM users WHERE walletAddress = ?", walletAddress);
+  const normalized = String(walletAddress).toLowerCase();
+  const row = await db.get<any>("SELECT * FROM users WHERE walletAddress = ?", normalized);
   return row ? hydrate(row) : null;
 }
 
@@ -50,7 +52,8 @@ export async function updateUser(
   walletAddress: string,
   updates: Partial<Pick<UserRecord, "role" | "skills" | "machines">>
 ): Promise<UserRecord> {
-  const current = await getOrCreateUser(db, walletAddress);
+  const normalized = String(walletAddress).toLowerCase();
+  const current = await getOrCreateUser(db, normalized);
   const next: UserRecord = {
     ...current,
     role: updates.role ?? current.role,
@@ -63,10 +66,10 @@ export async function updateUser(
     next.role,
     JSON.stringify(next.skills),
     JSON.stringify(next.machines),
-    walletAddress
+    normalized
   );
 
-  return (await getUser(db, walletAddress))!;
+  return (await getUser(db, normalized))!;
 }
 
 function hydrate(row: any): UserRecord {
