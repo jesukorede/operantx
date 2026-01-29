@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api, setToken } from "../lib/api";
-import { connectWallet, signMessage } from "../lib/wallet";
+import { connectWallet, disconnectWallet, signMessage } from "../lib/wallet";
 
 export function WalletConnect() {
   const [address, setAddress] = useState<string | null>(null);
@@ -91,6 +91,7 @@ export function WalletConnect() {
     setToken(null);
     localStorage.removeItem("operantx_address");
     setAddress(null);
+    disconnectWallet().catch(() => {});
   }
 
   if (!address) {

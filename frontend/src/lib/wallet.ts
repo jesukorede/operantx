@@ -45,6 +45,23 @@ export async function connectWallet(): Promise<`0x${string}`> {
   return addr;
 }
 
+export async function disconnectWallet(): Promise<void> {
+  const provider: any = cachedProvider;
+  cachedProvider = null;
+
+  if (!provider) return;
+
+  try {
+    if (typeof provider.disconnect === "function") {
+      await provider.disconnect();
+    } else if (typeof provider.close === "function") {
+      await provider.close();
+    }
+  } catch {
+    // best-effort disconnect
+  }
+}
+
 export async function signMessage(message: string, address: `0x${string}`): Promise<`0x${string}`> {
   const client = await getWalletClient();
   if (!client) throw new Error("no_wallet");
