@@ -34,6 +34,8 @@ export default function DashboardPage() {
             <div className="panel" style={{ flex: 1, minWidth: 280 }}>
               <h3 style={{ marginTop: 0 }}>You</h3>
               <div className="badge">{me.role}</div>
+              <div style={{ height: 8 }} />
+              <div className="badge">pilot: {me.pilotStatus ?? "none"}</div>
               <p style={{ color: "var(--muted)" }}>{me.walletAddress}</p>
               <p>
                 <strong>Skills:</strong> {me.skills?.length ? me.skills.join(", ") : "(none)"}

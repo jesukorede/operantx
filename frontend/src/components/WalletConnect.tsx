@@ -23,6 +23,42 @@ export function WalletConnect() {
     if (a) setAddress(a);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handler = (msg: string) => {
+      if (!msg) return;
+      if (/Failed to connect to MetaMask/i.test(msg)) {
+        setError("Failed to connect to MetaMask. Make sure the extension is unlocked, then try again.");
+      }
+    };
+
+    const onError = (ev: ErrorEvent) => {
+      handler(String(ev?.message ?? ""));
+      if (/Failed to connect to MetaMask/i.test(String(ev?.message ?? ""))) {
+        ev.preventDefault();
+        return true;
+      }
+      return false;
+    };
+
+    const onUnhandled = (ev: PromiseRejectionEvent) => {
+      const reason: any = ev?.reason;
+      const msg = String(reason?.message ?? reason ?? "");
+      handler(msg);
+      if (/Failed to connect to MetaMask/i.test(msg)) {
+        ev.preventDefault();
+      }
+    };
+
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onUnhandled);
+    return () => {
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onUnhandled);
+    };
+  }, []);
+
   async function onConnect() {
     setBusy(true);
     setError(null);
@@ -41,6 +77,8 @@ export function WalletConnect() {
         setError("Backend is not reachable.");
       } else if (msg === "no_wallet") {
         setError(isMobile ? "No wallet detected in this browser." : "No wallet detected (install MetaMask/Rabby). ");
+      } else if (/Failed to connect to MetaMask/i.test(msg)) {
+        setError("Failed to connect to MetaMask. Make sure the extension is unlocked, then try again.");
       } else {
         setError(msg);
       }
