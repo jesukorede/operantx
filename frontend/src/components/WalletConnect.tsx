@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { api, setToken } from "../lib/api";
-import { connectWallet, disconnectWallet, signMessage } from "../lib/wallet";
+import { connectInjectedWallet, connectWalletConnect, disconnectWallet, signMessage } from "../lib/wallet";
 
 export function WalletConnect() {
   const [address, setAddress] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showChooser, setShowChooser] = useState(false);
 
   const isMobile = typeof window !== "undefined" ? /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) : false;
   const wcEnabled = Boolean(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID);
@@ -59,11 +60,11 @@ export function WalletConnect() {
     };
   }, []);
 
-  async function onConnect() {
+  async function connectAndLogin(connectFn: () => Promise<`0x${string}`>) {
     setBusy(true);
     setError(null);
     try {
-      const addr = await connectWallet();
+      const addr = await connectFn();
       const { message } = await api.nonce(addr);
       const sig = await signMessage(message, addr);
       const { token } = await api.verify(addr, sig);
@@ -71,6 +72,7 @@ export function WalletConnect() {
       setToken(token);
       localStorage.setItem("operantx_address", addr);
       setAddress(addr);
+      setShowChooser(false);
     } catch (e: any) {
       const msg = String(e?.message ?? e);
       if (msg === "backend_unreachable") {
@@ -87,6 +89,11 @@ export function WalletConnect() {
     }
   }
 
+  function onOpenChooser() {
+    setError(null);
+    setShowChooser(true);
+  }
+
   function onDisconnect() {
     setToken(null);
     localStorage.removeItem("operantx_address");
@@ -97,13 +104,65 @@ export function WalletConnect() {
   if (!address) {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-        <button className="btn" onClick={onConnect} disabled={busy}>
+        <button className="btn" onClick={onOpenChooser} disabled={busy}>
           {busy ? "Connecting..." : "Connect Wallet"}
         </button>
-        {error === "No wallet detected in this browser." && isMobile ? (
+        {showChooser ? (
+          <div
+            className="panel"
+            style={{
+              position: "absolute",
+              right: 16,
+              top: 64,
+              zIndex: 50,
+              width: 260,
+              padding: 12
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <strong>Choose wallet</strong>
+              <button
+                className="btn secondary"
+                onClick={() => setShowChooser(false)}
+                style={{ padding: "6px 10px" }}
+                disabled={busy}
+              >
+                Close
+              </button>
+            </div>
+            <div style={{ height: 10 }} />
+            <button className="btn" onClick={() => connectAndLogin(connectInjectedWallet)} disabled={busy}>
+              MetaMask / Browser Wallet
+            </button>
+            <div style={{ height: 8 }} />
+            <button
+              className="btn secondary"
+              onClick={() =>
+                wcEnabled ? connectAndLogin(connectWalletConnect) : setError("WalletConnect is not configured on this site.")
+              }
+              disabled={busy}
+            >
+              WalletConnect
+            </button>
+            {isMobile ? (
+              <>
+                <div style={{ height: 8 }} />
+                <a className="btn secondary" href={metamaskDeepLink} target="_blank" rel="noreferrer">
+                  Open in MetaMask
+                </a>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+        {isMobile ? (
           <a className="btn secondary" href={metamaskDeepLink} target="_blank" rel="noreferrer">
             Open in MetaMask
           </a>
+        ) : null}
+        {error === "No wallet detected in this browser." && isMobile && wcEnabled ? (
+          <div style={{ color: "var(--muted)", fontSize: 12, maxWidth: 240, textAlign: "right" }}>
+            Tip: if you don’t have MetaMask mobile, use WalletConnect QR from a desktop browser.
+          </div>
         ) : null}
         {error === "No wallet detected in this browser." && !wcEnabled ? (
           <div style={{ color: "var(--muted)", fontSize: 12, maxWidth: 220, textAlign: "right" }}>

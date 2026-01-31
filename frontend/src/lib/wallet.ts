@@ -3,17 +3,26 @@ import EthereumProvider from "@walletconnect/ethereum-provider";
 
 type Eip1193Provider = any;
 
-let cachedProvider: Eip1193Provider | null = null;
+let cachedInjectedProvider: Eip1193Provider | null = null;
+let cachedWcProvider: Eip1193Provider | null = null;
+let activeProvider: Eip1193Provider | null = null;
 
-async function getEip1193Provider(): Promise<Eip1193Provider | null> {
+export type WalletProviderKind = "injected" | "walletconnect";
+
+async function getInjectedProvider(): Promise<Eip1193Provider | null> {
   if (typeof window === "undefined") return null;
-  if (cachedProvider) return cachedProvider;
-
   const anyWin = window as any;
   if (anyWin.ethereum) {
-    cachedProvider = anyWin.ethereum;
-    return cachedProvider;
+    cachedInjectedProvider = anyWin.ethereum;
+    return cachedInjectedProvider;
   }
+
+  return null;
+}
+
+async function getWalletConnectProvider(): Promise<Eip1193Provider | null> {
+  if (typeof window === "undefined") return null;
+  if (cachedWcProvider) return cachedWcProvider;
 
   const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
   if (!projectId) return null;
@@ -28,26 +37,77 @@ async function getEip1193Provider(): Promise<Eip1193Provider | null> {
     rpcMap: { [chainId]: rpcUrl },
   });
 
-  cachedProvider = provider as any;
-  return cachedProvider;
+  cachedWcProvider = provider as any;
+  return cachedWcProvider;
 }
 
-export async function getWalletClient() {
-  const provider = await getEip1193Provider();
+async function getEip1193Provider(preferred?: WalletProviderKind): Promise<Eip1193Provider | null> {
+  if (typeof window === "undefined") return null;
+  if (activeProvider) return activeProvider;
+
+  if (preferred === "walletconnect") {
+    const wc = await getWalletConnectProvider();
+    if (wc) return wc;
+    return await getInjectedProvider();
+  }
+
+  if (preferred === "injected") {
+    const inj = await getInjectedProvider();
+    if (inj) return inj;
+    return await getWalletConnectProvider();
+  }
+
+  return (await getInjectedProvider()) ?? (await getWalletConnectProvider());
+}
+
+export async function getWalletClient(preferred?: WalletProviderKind) {
+  const provider = await getEip1193Provider(preferred);
   if (!provider) return null;
   return createWalletClient({ transport: custom(provider) });
 }
 
-export async function connectWallet(): Promise<`0x${string}`> {
+async function connectWithProvider(provider: any): Promise<`0x${string}`> {
+  if (!provider) throw new Error("no_wallet");
+
+  try {
+    if (typeof provider.connect === "function") {
+      await provider.connect();
+    } else if (typeof provider.enable === "function") {
+      await provider.enable();
+    }
+  } catch {
+    // best-effort; we'll still try eth_requestAccounts below
+  }
+
+  activeProvider = provider;
   const client = await getWalletClient();
   if (!client) throw new Error("no_wallet");
   const [addr] = await client.requestAddresses();
   return addr;
 }
 
+export async function connectWallet(): Promise<`0x${string}`> {
+  const provider: any = await getEip1193Provider();
+  return connectWithProvider(provider);
+}
+
+export async function connectInjectedWallet(): Promise<`0x${string}`> {
+  const provider: any = await getInjectedProvider();
+  if (!provider) throw new Error("no_wallet");
+  return connectWithProvider(provider);
+}
+
+export async function connectWalletConnect(): Promise<`0x${string}`> {
+  const provider: any = await getWalletConnectProvider();
+  if (!provider) throw new Error("no_wallet");
+  return connectWithProvider(provider);
+}
+
 export async function disconnectWallet(): Promise<void> {
-  const provider: any = cachedProvider;
-  cachedProvider = null;
+  const provider: any = activeProvider ?? cachedWcProvider ?? cachedInjectedProvider;
+  activeProvider = null;
+  cachedWcProvider = null;
+  cachedInjectedProvider = null;
 
   if (!provider) return;
 
