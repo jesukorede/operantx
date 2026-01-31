@@ -103,7 +103,7 @@ export function WalletConnect() {
 
   if (!address) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, position: "relative" }}>
         <button className="btn" onClick={onOpenChooser} disabled={busy}>
           {busy ? "Connecting..." : "Connect Wallet"}
         </button>
@@ -112,10 +112,10 @@ export function WalletConnect() {
             className="panel"
             style={{
               position: "absolute",
-              right: 16,
-              top: 64,
+              right: 0,
+              top: "calc(100% + 8px)",
               zIndex: 50,
-              width: 260,
+              width: "min(92vw, 280px)",
               padding: 12
             }}
           >

@@ -47,10 +47,16 @@ body { background: var(--bg); color: var(--text); }
   .container { padding: 18px 14px; }
   .nav { flex-wrap: wrap; gap: 10px; }
   .nav a { margin-right: 0; }
-  .nav-links { width: 100%; justify-content: space-between; }
+  .nav-links { width: 100%; justify-content: flex-start; gap: 12px; }
+  .nav-links a { padding: 6px 0; }
   .features-grid { grid-template-columns: 1fr; }
   .hero-actions { width: 100%; }
   .hero-actions .btn { width: 100%; justify-content: center; text-align: center; }
+}
+
+@media (max-width: 420px) {
+  h1 { font-size: 32px !important; line-height: 1.15 !important; }
+  .btn { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 920px) {
